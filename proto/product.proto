@@ -1,0 +1,30 @@
+
+syntax = "proto3";
+
+package product;
+
+service ProductViewService {
+  rpc SendProductView (ProductViewRequest) returns (ProductViewResponse);
+}
+
+service DashboardService {
+  rpc StreamTopProducts (StreamRequest) returns (stream ProductRating);
+}
+
+
+message ProductViewRequest {
+  string product_id = 1;
+}
+
+message ProductViewResponse {
+  bool success = 1;
+}
+
+message StreamRequest {
+  int32 max_products = 1;
+}
+
+message ProductRating {
+  string product_id = 1;
+  double views = 2;
+}
