@@ -8,10 +8,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	pb "gRPC-rating/gen/github.com/ArtemKVD/gRPC-rating/gen"
+	pb "gRPC-rating/gen"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
 )
 
 type server struct {
@@ -20,18 +21,27 @@ type server struct {
 }
 
 func (s *server) SendProductView(ctx context.Context, req *pb.ProductViewRequest) (*pb.ProductViewResponse, error) {
-
 	topic := "product-views"
-	deliveryChan := make(chan kafka.Event)
+	event := &pb.KafkaProductEvent{
+		ProductId: req.ProductId,
+	}
 
-	err := s.producer.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Value:          []byte(req.ProductId),
-	}, deliveryChan)
+	protoData, err := proto.Marshal(event)
+	if err != nil {
+		log.Printf("kafka produce error")
+		return nil, err
+	}
+
+	err = s.producer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{
+			Topic:     &topic,
+			Partition: kafka.PartitionAny,
+		},
+		Value: protoData,
+	}, nil)
 
 	if err != nil {
-		close(deliveryChan)
-		log.Printf("error produce meassage")
+		log.Printf("kafka produce error")
 		return nil, err
 	}
 

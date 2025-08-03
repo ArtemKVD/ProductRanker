@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	pb "gRPC-rating/gen/github.com/ArtemKVD/gRPC-rating/gen"
+	pb "gRPC-rating/gen"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

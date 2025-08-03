@@ -205,6 +205,50 @@ func (x *ProductRating) GetViews() float64 {
 	return 0
 }
 
+type KafkaProductEvent struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProductId     string                 `protobuf:"bytes,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KafkaProductEvent) Reset() {
+	*x = KafkaProductEvent{}
+	mi := &file_product_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KafkaProductEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KafkaProductEvent) ProtoMessage() {}
+
+func (x *KafkaProductEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_product_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KafkaProductEvent.ProtoReflect.Descriptor instead.
+func (*KafkaProductEvent) Descriptor() ([]byte, []int) {
+	return file_product_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *KafkaProductEvent) GetProductId() string {
+	if x != nil {
+		return x.ProductId
+	}
+	return ""
+}
+
 var File_product_proto protoreflect.FileDescriptor
 
 const file_product_proto_rawDesc = "" +
@@ -220,7 +264,10 @@ const file_product_proto_rawDesc = "" +
 	"\rProductRating\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\tR\tproductId\x12\x14\n" +
-	"\x05views\x18\x02 \x01(\x01R\x05views2b\n" +
+	"\x05views\x18\x02 \x01(\x01R\x05views\"2\n" +
+	"\x11KafkaProductEvent\x12\x1d\n" +
+	"\n" +
+	"product_id\x18\x01 \x01(\tR\tproductId2b\n" +
 	"\x12ProductViewService\x12L\n" +
 	"\x0fSendProductView\x12\x1b.product.ProductViewRequest\x1a\x1c.product.ProductViewResponse2Y\n" +
 	"\x10DashboardService\x12E\n" +
@@ -238,12 +285,13 @@ func file_product_proto_rawDescGZIP() []byte {
 	return file_product_proto_rawDescData
 }
 
-var file_product_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_product_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_product_proto_goTypes = []any{
 	(*ProductViewRequest)(nil),  // 0: product.ProductViewRequest
 	(*ProductViewResponse)(nil), // 1: product.ProductViewResponse
 	(*StreamRequest)(nil),       // 2: product.StreamRequest
 	(*ProductRating)(nil),       // 3: product.ProductRating
+	(*KafkaProductEvent)(nil),   // 4: product.KafkaProductEvent
 }
 var file_product_proto_depIdxs = []int32{
 	0, // 0: product.ProductViewService.SendProductView:input_type -> product.ProductViewRequest
@@ -268,7 +316,7 @@ func file_product_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_product_proto_rawDesc), len(file_product_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

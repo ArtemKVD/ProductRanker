@@ -2,16 +2,16 @@ package main
 
 import (
 	"context"
-	"errors"
 	"log"
 	"time"
 
-	pb "gRPC-rating/gen/github.com/ArtemKVD/gRPC-rating/gen"
+	pb "gRPC-rating/gen"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/proto"
 )
 
 type RatingService struct {
@@ -75,11 +75,13 @@ func main() {
 }
 
 func (s *RatingService) RatingUpdate(ctx context.Context, msgValue []byte) error {
-	productID := string(msgValue)
-	if productID == "" {
-		return errors.New("invalid product id")
+	var event pb.KafkaProductEvent
+	err := proto.Unmarshal(msgValue, &event)
+	if err != nil {
+		return err
 	}
 
-	_, err := s.redisClient.ZIncrBy(ctx, "product_ratings", 1, productID).Result()
+	_, err = s.redisClient.ZIncrBy(context.Background(), "product_ratings", 1, event.ProductId).Result()
+
 	return err
 }

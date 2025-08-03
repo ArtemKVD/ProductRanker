@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	pb "gRPC-rating/gen/github.com/ArtemKVD/gRPC-rating/gen"
+	pb "gRPC-rating/gen"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -21,6 +21,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer conn.Close()
+
 	client := pb.NewProductViewServiceClient(conn)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

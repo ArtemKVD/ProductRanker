@@ -3,6 +3,8 @@ syntax = "proto3";
 
 package product;
 
+option go_package = "github.com/ArtemKVD/gRPC-rating/gen";
+
 service ProductViewService {
   rpc SendProductView (ProductViewRequest) returns (ProductViewResponse);
 }
@@ -27,4 +29,8 @@ message StreamRequest {
 message ProductRating {
   string product_id = 1;
   double views = 2;
+}
+
+message KafkaProductEvent {
+  string product_id = 1; 
 }
