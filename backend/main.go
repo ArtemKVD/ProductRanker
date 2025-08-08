@@ -51,7 +51,7 @@ func (s *server) SendProductView(ctx context.Context, req *pb.ProductViewRequest
 
 func main() {
 	config := &kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
+		"bootstrap.servers": "kafka:9092",
 		"client.id":         "gRPC-backend",
 		"acks":              "1",
 	}

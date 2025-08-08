@@ -1,0 +1,139 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - ${REDIS_PORT:-6379}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - grpc-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "12181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_MAX_CLIENT_CNXNS: 60
+    healthcheck:
+      test: ["CMD-SHELL", "zkServer.sh status || exit 1"]
+      interval: 10s
+      timeout: 20s
+      retries: 30
+      start_period: 60s
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+    networks:
+      - grpc-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.0.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      zookeeper:
+        condition: service_started
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_NUM_PARTITIONS: "1"
+      KAFKA_DEFAULT_REPLICATION_FACTOR: "1"
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 10s
+      timeout: 20s
+      retries: 30
+      start_period: 60s
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - grpc-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "${BACKEND_PORT}:8084"
+      - "${GRPC_PORT}:50051"
+    networks:
+      - grpc-network
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+
+  rating:
+    build:
+      context: .
+      dockerfile: rating/Dockerfile
+    ports:
+      - "${RATING_PORT}:8081"
+    networks:
+      - grpc-network
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      KAFKA_GROUP_ID: ${KAFKA_GROUP_ID}
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    ports:
+      - "${DASHBOARD_PORT}:8080"
+    networks:
+      - grpc-network
+    depends_on:
+    - backend
+    - redis
+    environment:
+      REDIS_ADDR: "${REDIS_HOST}:${REDIS_PORT}" 
+      GRPC_SERVER: ${GRPC_SERVER}
+
+  web:
+    build:
+      context: .
+      dockerfile: client/web/Dockerfile
+    ports:
+      - "${WEB_PORT}:8083"
+    volumes:
+      - ./client/web/templates:/app/templates 
+    networks:
+      - grpc-network
+    environment:
+      GRPC_SERVER: ${GRPC_SERVER}
+    depends_on:
+      - backend
+
+networks:
+  grpc-network:
+    driver: bridge
+
+volumes:
+  zookeeper-data:
+  zookeeper-log:
+  kafka-data:

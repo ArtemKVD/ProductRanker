@@ -9,7 +9,11 @@ import (
 )
 
 func main() {
-	rdb := redis.NewClient(&redis.Options{Addr: "localhost:6379"})
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "",
+		DB:       0,
+	})
 
 	http.HandleFunc("/ratings", func(w http.ResponseWriter, r *http.Request) {
 		ratings, err := rdb.ZRevRangeWithScores(context.Background(), "product_ratings", 0, 10).Result()

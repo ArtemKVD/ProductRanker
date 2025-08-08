@@ -1,7 +1,6 @@
 package main
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 	"strings"
@@ -14,7 +13,7 @@ import (
 
 func main() {
 	conn, err := grpc.NewClient(
-		"localhost:50051",
+		"backend:50051",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -25,8 +24,11 @@ func main() {
 	client := pb.NewProductViewServiceClient(conn)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		tmpl := template.Must(template.ParseFiles("client/web/templates/index.html"))
-		tmpl.Execute(w, nil)
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		http.ServeFile(w, r, "templates/index.html")
 	})
 
 	http.HandleFunc("/view", func(w http.ResponseWriter, r *http.Request) {
@@ -41,5 +43,5 @@ func main() {
 			log.Printf("error send production view %v", err)
 		}
 	})
-	http.ListenAndServe(":8081", nil)
+	http.ListenAndServe(":8083", nil)
 }

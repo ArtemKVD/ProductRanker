@@ -23,7 +23,7 @@ type RatingService struct {
 func main() {
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: "redis:6379",
 	})
 
 	conn, err := grpc.NewClient(
@@ -43,7 +43,7 @@ func main() {
 	}
 
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
+		"bootstrap.servers": "kafka:9092",
 		"group.id":          "rating-group",
 		"auto.offset.reset": "earliest",
 	})
