@@ -47,7 +47,7 @@ func main() {
 	}
 
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "kafka:9092",
+		"bootstrap.servers": os.Getenv("KAFKA_BROKERS"),
 		"group.id":          "rating-group",
 		"auto.offset.reset": "earliest",
 	})

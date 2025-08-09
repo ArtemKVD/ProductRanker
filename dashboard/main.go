@@ -28,5 +28,5 @@ func main() {
 		}
 	})
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(os.Getenv("DASHBOARD_PORT"), nil)
 }

@@ -63,7 +63,7 @@ func main() {
 	}
 	defer producer.Close()
 
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", os.Getenv("GRPC_PORT"))
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
@@ -75,7 +75,6 @@ func main() {
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		log.Println("Server running on :50051")
 		err := s.Serve(lis)
 		if err != nil {
 			log.Fatalf("Failed to serve: %v", err)
