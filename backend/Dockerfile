@@ -1,4 +1,3 @@
-# Фаза сборки
 FROM golang:1.24.4-bullseye AS builder
 
 RUN apt-get update && apt-get install -y \
@@ -11,7 +10,6 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=1 GOOS=linux go build -o /backend ./backend/main.go
 
-# Фаза запуска
 FROM debian:bullseye-slim
 
 RUN apt-get update && apt-get install -y \
