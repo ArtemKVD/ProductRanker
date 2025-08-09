@@ -70,7 +70,6 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     ports:
-      - "${BACKEND_PORT}:8084"
       - "${GRPC_PORT}:50051"
     networks:
       - grpc-network

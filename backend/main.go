@@ -50,8 +50,9 @@ func (s *server) SendProductView(ctx context.Context, req *pb.ProductViewRequest
 }
 
 func main() {
+	kafkaBrokers := os.Getenv("KAFKA_BROKERS")
 	config := &kafka.ConfigMap{
-		"bootstrap.servers": "kafka:9092",
+		"bootstrap.servers": kafkaBrokers,
 		"client.id":         "gRPC-backend",
 		"acks":              "1",
 	}

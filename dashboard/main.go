@@ -4,14 +4,15 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/redis/go-redis/v9"
 )
 
 func main() {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
-		Password: "",
+		Addr:     fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
+		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0,
 	})
 

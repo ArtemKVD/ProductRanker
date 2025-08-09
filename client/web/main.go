@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	pb "gRPC-rating/gen"
@@ -13,7 +14,7 @@ import (
 
 func main() {
 	conn, err := grpc.NewClient(
-		"backend:50051",
+		os.Getenv("GRPC_SERVER_ADDRESS"),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {

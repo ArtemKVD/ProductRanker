@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
 	pb "gRPC-rating/gen"
@@ -23,11 +25,13 @@ type RatingService struct {
 func main() {
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
+		Addr:     fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       0,
 	})
 
 	conn, err := grpc.NewClient(
-		"localhost:50052",
+		os.Getenv("DASHBOARD_ADDRESS"),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 
